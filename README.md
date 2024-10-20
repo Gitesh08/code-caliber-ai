@@ -11,7 +11,6 @@ Code Caliber AI offers a suite of features to streamline the documentation proce
 - 📚 Analyzes codebases up to 50MB in size
 - 🧠 Provides in-depth understanding of project structure
 - 🎨 Generates detailed, insightful documentation
-- 📊 Creates visual diagrams to represent code architecture
 
 These capabilities allow for rapid documentation generation, surpassing traditional manual methods in both speed and consistency.
 
@@ -29,7 +28,7 @@ These capabilities allow for rapid documentation generation, surpassing traditio
 - **Frontend**: Developed with HTML, CSS, and JavaScript for a responsive user interface.
 - **AI Integration**: Powered by Google's Gemini AI for advanced natural language processing.
 - **AI Model**: Utilizes the Gemini-1.5-Pro model for superior language understanding and generation.
-- **Auxiliary Libraries**: Incorporates Marked.js, Highlight.js, and Mermaid for enhanced functionality and visualization.
+- **Auxiliary Libraries**: Incorporates Marked.js, Highlight.js, and Mermaid for enhanced functionality.
 
 ## 🧠 AI Algorithm and Model
 
@@ -78,7 +77,6 @@ The integration of Gemini-1.5-Pro enables Code Caliber AI to provide highly accu
 - **Intuitive User Interface**: Designed for ease of use and efficiency.
 - **Adaptable Documentation**: Customizable through user-defined prompts.
 - **Rapid Processing**: Quick generation of Project Overview, File Analysis, and Project Analysis.
-- **Visual Representation**: Utilizes Mermaid diagrams for clear code structure visualization.
 
 ## 💪 Benefits
 
