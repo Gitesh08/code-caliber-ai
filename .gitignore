@@ -1,0 +1,10 @@
+__pycache__/
+.env
+schema/__pycache__/
+services/__pycache__/
+venv//*
+venv/
+venv/pyvenv.cfg
+venv/Lib/
+utils/__pycache__/__init__.cpython-312.pyc
+uploads/

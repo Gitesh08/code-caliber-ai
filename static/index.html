@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Caliber AI</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Code Caliber AI</h1>
+            <p>Empowering developers with AI-driven code documentation</p>
+        </header>
+
+        <div class="upload-section">
+            <div class="error" id="errorMessage"></div>
+
+            <form id="uploadForm" class="upload-form">
+                <div class="form-group">
+                    <label for="zipFile">Select ZIP File (Max 50MB)</label>
+                    <div class="file-input-container">
+                        <input type="file" id="zipFile" accept=".zip" required>
+                        <div class="file-drag-area">
+                            <span class="drag-text">Drag & Drop ZIP file here or click to browse</span>
+                        </div>
+                    </div>
+                    <div id="fileStatus" class="file-status"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="apiKey">Gemini API Key</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="apiKey" required placeholder="Enter your Gemini API key" class="input-field">
+                        <button type="button" id="toggleApiKey" class="toggle-password" aria-label="Toggle API key visibility" title="Toggle API key visibility">
+                            <i class="fas fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <p class="api-key-help">Don't have a key? <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" id="generateKey">Generate</a></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="customInstructions">Custom Instructions (Optional)</label>
+                    <textarea id="customInstructions" rows="4" placeholder="Add any specific instructions for documentation generation" class="input-field"></textarea>
+                </div>
+
+                <button type="submit" id="submitButton" class="primary-button">
+                    <span class="button-text">Generate Documentation</span>
+                    <div class="button-loader"></div>
+                </button>
+            </form>
+        </div>
+
+        <div class="loading" id="loadingIndicator">
+            <div class="loader"></div>
+            <p>Analyzing code and generating documentation...</p>
+        </div>
+
+        <div class="documentation-section" id="documentationOutput">
+            <div class="documentation-tabs">
+                <button class="tab-button active" data-tab="overview">Project Overview</button>
+                <button class="tab-button" data-tab="files">File Analysis</button>
+                <button class="tab-button" data-tab="integrations">Project Analysis</button>
+            </div>
+
+            <div class="tab-content active" id="overviewTab">
+                <div class="tab-actions">
+                    <!-- <button class="action-btn copy-btn" title="Copy content" data-tab="overviewTab">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="action-btn download-btn" title="Download as PDF" data-tab="overviewTab">
+                        <i class="fas fa-download"></i>
+                    </button> -->
+                </div>
+                <div class="project-stats" id="projectStats"></div>
+                <div class="project-structure" id="projectStructure"></div>
+                <div class="overview-content" id="overviewContent"></div>
+            </div>
+
+            <div class="tab-content" id="filesTab">
+                <div class="tab-actions">
+                    <!-- <button class="action-btn copy-btn" title="Copy content" data-tab="filesTab">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="action-btn download-btn" title="Download as PDF" data-tab="filesTab">
+                        <i class="fas fa-download"></i>
+                    </button> -->
+                </div>
+                <div class="files-list" id="filesList"></div>
+            </div>
+
+            <div class="tab-content" id="integrationsTab">
+                <div class="tab-actions">
+                    <!-- <button class="action-btn copy-btn" title="Copy content" data-tab="integrationsTab">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="action-btn download-btn" title="Download as PDF" data-tab="integrationsTab">
+                        <i class="fas fa-download"></i>
+                    </button> -->
+                </div>
+                <div class="integrations-content" id="integrationsContent"></div>
+            </div>
+        </div>
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h3>Contribute</h3>
+                        <p>Help improve Code Caliber AI! Visit our <a href="https://github.com/Gitesh08/code-caliber-ai" target="_blank" rel="noopener noreferrer">GitHub repository</a> to contribute.</p>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Connect</h3>
+                        <div class="social-icons">
+                            <a href="https://github.com/Gitesh08" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                            <a href="https://www.linkedin.com/in/gitesh-mahadik-7487961a0/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2024 Code Caliber AI. All rights reserved.</p>
+                    <p>Built with ❤️ by <a href="https://github.com/Gitesh08" target="_blank" rel="noopener noreferrer">Gitesh</a></p>
+                </div>
+            </div>
+        </footer>
+        <script src="script.js"></script>
+</body>
+
+</html>
