@@ -4,6 +4,12 @@
 
 Code Caliber AI is an advanced tool designed to automate and improve the process of creating comprehensive code documentation. By leveraging artificial intelligence, it aims to save developers time and ensure consistent, high-quality documentation across projects.
 
+<div align="left">
+      <a href="https://www.youtube.com/watch?v=JlTSxWv5VUs">
+         <img src="https://img.youtube.com/vi/JlTSxWv5VUs/0.jpg" style="width:90%;">
+      </a>
+</div>
+
 ## 🔍 Overview
 
 Code Caliber AI offers a suite of features to streamline the documentation process:
