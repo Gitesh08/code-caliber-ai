@@ -6,7 +6,7 @@ Code Caliber AI is an advanced tool designed to automate and improve the process
 
 <div align="left">
       <a href="https://www.youtube.com/watch?v=JlTSxWv5VUs">
-         <img src="https://img.youtube.com/vi/JlTSxWv5VUs/0.jpg" style="width:90%;">
+         <img src="https://github.com/user-attachments/assets/0729df48-38c2-4b02-8ef9-7a1e4184feb8" style="width:90%;">
       </a>
 </div>
 
