@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pathlib import Path
 from dotenv import load_dotenv
-from services.service import analyze_code_files
+from services.service import analyze_code_files, analyze_github_repository
 from schema.models import ALLOWED_EXTENSIONS
 
 # Load environment variables
@@ -55,3 +55,33 @@ async def upload_and_analyze(
         import traceback
         error_detail = f"An error occurred: {str(e)}\n{traceback.format_exc()}"
         raise HTTPException(status_code=500, detail=error_detail)
+      
+@app.post("/analyze-github")
+async def analyze_github(request_data: dict):
+    try:
+        if not request_data.get('github_url'):
+            raise HTTPException(status_code=400, detail="GitHub repository URL is required")
+        
+        if not request_data.get('gemini_api_key'):
+            raise HTTPException(status_code=400, detail="Gemini API key is required")
+        
+        documentation = await analyze_github_repository(
+            repo_url=request_data['github_url'],
+            api_key=request_data['gemini_api_key'],
+            custom_instructions=request_data.get('custom_instructions', '')
+        )
+        
+        return JSONResponse(content={"documentation": documentation})
+    except Exception as e:
+        import traceback
+        error_detail = f"An error occurred: {str(e)}\n{traceback.format_exc()}"
+        raise HTTPException(status_code=500, detail=error_detail)
+
+@app.get("/validate-github-repo/{owner}/{repo}")
+async def validate_github_repo(owner: str, repo: str):
+    try:
+        from services.githubService import check_repository_exists
+        exists = await check_repository_exists(owner, repo)
+        return JSONResponse(content={"exists": exists})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
