@@ -20,6 +20,10 @@ class DocumentationUI {
         this.fileStatus = document.getElementById('fileStatus');
         this.tabs = document.querySelectorAll('.tab-button');
         this.tabContents = document.querySelectorAll('.tab-content');
+        this.githubRepoInput = document.getElementById('githubRepo');
+        this.validateRepoButton = document.getElementById('validateRepo');
+        this.repoStatus = document.getElementById('repoStatus');
+        this.isValidating = false;
     }
 
     attachEventListeners() {
@@ -28,6 +32,8 @@ class DocumentationUI {
         this.tabs.forEach(tab => {
             tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
         });
+        this.validateRepoButton.addEventListener('click', () => this.validateGithubRepo());
+        this.githubRepoInput.addEventListener('input', () => this.clearRepoStatus());
         this.fileInput.addEventListener('change', (e) => this.handleFileChange(e));
         this.setupActionButtons();
     }
@@ -127,6 +133,104 @@ class DocumentationUI {
         this.clearFileStatus();
     }
 
+    //functions or handling the Github repo
+
+    // validate repo entered by user
+    async validateGithubRepo() {
+        if (this.isValidating) return;
+
+        const repoUrl = this.githubRepoInput.value.trim();
+        const repoPattern = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)$/;
+
+        if (!repoUrl) {
+            this.updateRepoStatus('Please enter a GitHub repository URL', false);
+            return;
+        }
+
+        const match = repoUrl.match(repoPattern);
+        if (!match) {
+            this.updateRepoStatus('Invalid repository URL format', false);
+            return;
+        }
+
+        const [, owner, repo] = match;
+
+        try {
+            this.isValidating = true;
+            this.updateRepoStatus('Checking repository...', null);
+            this.validateRepoButton.disabled = true;
+
+            const exists = await this.checkRepoExists(owner, repo);
+
+            if (exists) {
+                this.updateRepoStatus(`Repository ${owner}/${repo} is valid and accessible`, true);
+            } else {
+                this.updateRepoStatus(`Repository ${owner}/${repo} does not exist or is not accessible`, false);
+            }
+        } catch (error) {
+            console.error('Error validating repository:', error);
+            this.updateRepoStatus(
+                error.status === 403 ?
+                'GitHub API rate limit exceeded. Please try again later.' :
+                'Error checking repository. Please try again.',
+                false
+            );
+        } finally {
+            this.isValidating = false;
+            this.validateRepoButton.disabled = false;
+        }
+    }
+
+    //async function to check if repo is valid
+    async checkRepoExists(owner, repo) {
+        try {
+            const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
+                method: 'HEAD',
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            return response.status === 200;
+        } catch (error) {
+            console.error('Error checking repository:', error);
+            throw error;
+        }
+    }
+
+    // to update validation status
+    updateRepoStatus(message, isValid) {
+        if (!this.repoStatus) return;
+
+        let statusHTML;
+        if (isValid === null) {
+            // Loading state
+            statusHTML = `
+                <div class="repo-info loading">
+                    <span>${message}</span>
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            `;
+        } else {
+            statusHTML = `
+                <div class="repo-info ${isValid ? 'valid' : 'invalid'}">
+                    <span>${message}</span>
+                    ${isValid ? 
+                        '<i class="fas fa-check" style="color: var(--success-color)"></i>' : 
+                        '<i class="fas fa-times" style="color: var(--error-color)"></i>'}
+                </div>
+            `;
+        }
+
+        this.repoStatus.innerHTML = statusHTML;
+    }
+
+    // clear repo status
+    clearRepoStatus() {
+        if (this.repoStatus) {
+            this.repoStatus.innerHTML = '';
+        }
+    }
+
     switchTab(tabId) {
         this.tabs.forEach(tab => {
             tab.classList.toggle('active', tab.dataset.tab === tabId);
@@ -136,73 +240,75 @@ class DocumentationUI {
         });
     }
 
-    copyTabContent(tabId) {
-        const tabContent = document.getElementById(`${tabId}Tab`);
-        if (tabContent) {
-            const textContent = tabContent.innerText;
-            navigator.clipboard.writeText(textContent)
-                .then(() => {
-                    this.showSuccess('Content copied to clipboard');
-                })
-                .catch(err => {
-                    this.showError('Failed to copy content');
-                    console.error('Copy failed:', err);
-                });
-        }
-    }
+    // Need to implement
 
-    downloadTabContent(tabId) {
-        const tabContent = document.getElementById(`${tabId}Tab`);
-        if (tabContent) {
-            const element = document.createElement('a');
-            const content = tabContent.innerHTML;
+    // copyTabContent(tabId) {
+    //     const tabContent = document.getElementById(`${tabId}Tab`);
+    //     if (tabContent) {
+    //         const textContent = tabContent.innerText;
+    //         navigator.clipboard.writeText(textContent)
+    //             .then(() => {
+    //                 this.showSuccess('Content copied to clipboard');
+    //             })
+    //             .catch(err => {
+    //                 this.showError('Failed to copy content');
+    //                 console.error('Copy failed:', err);
+    //             });
+    //     }
+    // }
 
-            const htmlContent = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Documentation Export</title>
-                    <style>
-                        body { 
-                            font-family: 'Google Sans', Arial, sans-serif; 
-                            padding: 20px;
-                            max-width: 1200px;
-                            margin: 0 auto;
-                        }
-                        pre { 
-                            background: #f5f5f5; 
-                            padding: 15px; 
-                            border-radius: 5px;
-                            overflow-x: auto;
-                        }
-                        .mermaid { margin: 20px 0; }
-                        .project-stats {
-                            display: grid;
-                            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                            gap: 20px;
-                            margin-bottom: 30px;
-                        }
-                        .stat-card {
-                            background: #f8fafc;
-                            padding: 15px;
-                            border-radius: 8px;
-                            border: 1px solid #e2e8f0;
-                        }
-                    </style>
-                </head>
-                <body>${content}</body>
-                </html>
-            `;
+    // downloadTabContent(tabId) {
+    //     const tabContent = document.getElementById(`${tabId}Tab`);
+    //     if (tabContent) {
+    //         const element = document.createElement('a');
+    //         const content = tabContent.innerHTML;
 
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-            element.href = URL.createObjectURL(blob);
-            element.download = `documentation-${tabId}.html`;
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-        }
-    }
+    //         const htmlContent = `
+    //             <!DOCTYPE html>
+    //             <html>
+    //             <head>
+    //                 <meta charset="UTF-8">
+    //                 <title>Documentation Export</title>
+    //                 <style>
+    //                     body { 
+    //                         font-family: 'Google Sans', Arial, sans-serif; 
+    //                         padding: 20px;
+    //                         max-width: 1200px;
+    //                         margin: 0 auto;
+    //                     }
+    //                     pre { 
+    //                         background: #f5f5f5; 
+    //                         padding: 15px; 
+    //                         border-radius: 5px;
+    //                         overflow-x: auto;
+    //                     }
+    //                     .mermaid { margin: 20px 0; }
+    //                     .project-stats {
+    //                         display: grid;
+    //                         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    //                         gap: 20px;
+    //                         margin-bottom: 30px;
+    //                     }
+    //                     .stat-card {
+    //                         background: #f8fafc;
+    //                         padding: 15px;
+    //                         border-radius: 8px;
+    //                         border: 1px solid #e2e8f0;
+    //                     }
+    //                 </style>
+    //             </head>
+    //             <body>${content}</body>
+    //             </html>
+    //         `;
+
+    //         const blob = new Blob([htmlContent], { type: 'text/html' });
+    //         element.href = URL.createObjectURL(blob);
+    //         element.download = `documentation-${tabId}.html`;
+    //         document.body.appendChild(element);
+    //         element.click();
+    //         document.body.removeChild(element);
+    //     }
+    // }
 
     showSuccess(message) {
         const successDiv = document.createElement('div');
@@ -235,19 +341,35 @@ class DocumentationUI {
         }
     }
 
+
+    //async function to handle the form submission
     async handleSubmit(e) {
         e.preventDefault();
         console.log('Form submitted');
 
         const apiKey = this.apiKeyInput.value;
         const customInstructions = this.customInstructionsInput.value;
+        const repoUrl = this.githubRepoInput.value.trim();
 
-        if (!this.validateInputs(this.currentFile, apiKey)) return;
+        // Validate all inputs first
+        if (!this.validateInputs()) {
+            return;
+        }
 
         try {
             this.setLoadingState(true);
-            const documentation = await this.uploadAndAnalyze(this.currentFile, apiKey, customInstructions);
-            this.displayDocumentation(documentation);
+            let documentation;
+
+            if (this.currentFile) {
+                documentation = await this.uploadAndAnalyze(this.currentFile, apiKey, customInstructions);
+            } else if (repoUrl) {
+                documentation = await this.analyzeGithubRepo(repoUrl, apiKey, customInstructions);
+            }
+
+            if (documentation) {
+                this.displayDocumentation(documentation);
+                this.showSuccess('Documentation generated successfully!');
+            }
         } catch (error) {
             console.error('Error during submission:', error);
             this.showError(`Error: ${error.message}`);
@@ -256,25 +378,52 @@ class DocumentationUI {
         }
     }
 
-    validateInputs(file, apiKey) {
-        if (!file) {
-            this.showError('Please select a ZIP file');
-            return false;
-        }
 
+    // validate Inputs
+    validateInputs() {
+        const apiKey = this.apiKeyInput.value;
+        const repoUrl = this.githubRepoInput.value.trim();
+        const hasFile = Boolean(this.currentFile);
+        const hasRepoUrl = Boolean(repoUrl);
+
+        // Check API key
         if (!apiKey) {
             this.showError('Please enter your Gemini API key');
             return false;
         }
 
-        if (!file.name.endsWith('.zip')) {
+        // Check if at least one input method is provided
+        if (!hasFile && !hasRepoUrl) {
+            this.showError('Please either select a ZIP file or enter a GitHub repository URL');
+            return false;
+        }
+
+        // Check if both input methods are provided
+        if (hasFile && hasRepoUrl) {
+            this.showError('Please use either ZIP file or GitHub URL, not both');
+            return false;
+        }
+
+        // Validate ZIP file if present
+        if (hasFile && !this.currentFile.name.endsWith('.zip')) {
             this.showError('Please upload a ZIP file');
             return false;
+        }
+
+        // Validate GitHub URL if present
+        if (hasRepoUrl) {
+            const repoPattern = /^https:\/\/github\.com\/[^\/]+\/[^\/]+$/;
+            if (!repoPattern.test(repoUrl)) {
+                this.showError('Please enter a valid GitHub repository URL');
+                return false;
+            }
         }
 
         return true;
     }
 
+
+    //method to  send form data to backend (zip file)
     async uploadAndAnalyze(file, apiKey, customInstructions) {
         console.log('Uploading and analyzing file:', file.name);
         const formData = new FormData();
@@ -315,6 +464,56 @@ class DocumentationUI {
         }
     }
 
+
+    //method to send form data to backend (Github)
+    // method for GitHub repository analysis
+    async analyzeGithubRepo(repoUrl, apiKey, customInstructions) {
+        console.log('Analyzing GitHub repository:', repoUrl);
+
+        const requestData = {
+            github_url: repoUrl,
+            gemini_api_key: apiKey,
+            custom_instructions: customInstructions
+        };
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/analyze-github', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+
+            const responseText = await response.text();
+            console.log('Response text:', responseText);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            if (!responseText) {
+                throw new Error('Empty response received from server');
+            }
+
+            try {
+                const jsonData = JSON.parse(responseText);
+                return jsonData;
+            } catch (jsonError) {
+                console.error('JSON parsing error:', jsonError);
+                throw new Error('Invalid JSON response from server');
+            }
+        } catch (error) {
+            console.error('Error in analyzeGithubRepo:', error);
+            throw error;
+        }
+    }
+
+
+    //function to handle display output
     displayDocumentation(data) {
         console.log('Displaying documentation');
         const { project_overview, component_analysis, project_analysis } = data.documentation;
