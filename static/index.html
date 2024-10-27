@@ -28,12 +28,23 @@
                 <div class="form-group">
                     <label for="zipFile">Select ZIP File (Max 50MB)</label>
                     <div class="file-input-container">
-                        <input type="file" id="zipFile" accept=".zip" required>
+                        <input type="file" id="zipFile" accept=".zip">
                         <div class="file-drag-area">
                             <span class="drag-text">Drag & Drop ZIP file here or click to browse</span>
                         </div>
                     </div>
                     <div id="fileStatus" class="file-status"></div>
+                </div>
+                <div class="form-group">
+                    <label>Or Enter GitHub Repository URL</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="githubRepo" placeholder="e.g. https://github.com/username/repository" class="input-field">
+                        <button type="button" id="validateRepo" class="validate-btn" title="Validate repository">
+                          <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                    <div id="repoStatus" class="repo-status"></div>
+                    <p class="repo-help">Format: https://github.com/username/repository</p>
                 </div>
 
                 <div class="form-group">
